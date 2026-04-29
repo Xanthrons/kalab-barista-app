@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import { useAppPreferences } from "../hooks/useTelegramWebApp";
 
 function BrandHeader({ compact = false, showNav = false, rightSlot = null }) {
+  const { t } = useAppPreferences();
+
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -11,14 +14,11 @@ function BrandHeader({ compact = false, showNav = false, rightSlot = null }) {
           className={compact ? "h-16 w-16 rounded-2xl object-contain" : "h-20 w-20 rounded-[24px] object-contain"}
         />
         <div>
-          <p className="text-xs uppercase tracking-[0.34em] text-coffee-accent/80">
-            Kalab Coffee
-          </p>
-          <h1 className={compact ? "mt-1 font-display text-3xl font-semibold" : "mt-2 font-display text-4xl font-semibold"}>
-            Barista Academy
+          <h1 className={compact ? "mt-1 text-3xl font-extrabold" : "mt-2 text-4xl font-extrabold"}>
+            {t("appName")}
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-coffee-muted">
-            Unveil the Science Behind Every Cup
+            {t("subtitle")}
           </p>
           {showNav ? (
             <div className="mt-4 flex flex-wrap gap-2 text-xs text-coffee-text/85">
@@ -26,19 +26,19 @@ function BrandHeader({ compact = false, showNav = false, rightSlot = null }) {
                 to="/"
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 transition hover:border-coffee-accent/50 hover:bg-white/10"
               >
-                Home
+                {t("home")}
               </Link>
               <Link
                 to="/register"
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 transition hover:border-coffee-accent/50 hover:bg-white/10"
               >
-                Registration
+                {t("registration")}
               </Link>
               <Link
                 to="/courses"
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 transition hover:border-coffee-accent/50 hover:bg-white/10"
               >
-                Courses
+                {t("courses")}
               </Link>
             </div>
           ) : null}

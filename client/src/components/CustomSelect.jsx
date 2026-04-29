@@ -1,15 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 function CustomSelect({
   id,
   label,
   value,
   onChange,
+  onBlur,
   error,
   options,
   placeholder,
   className = "",
+  required = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -25,23 +27,20 @@ function CustomSelect({
       const rect = selectRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       const windowWidth = window.innerWidth;
-      const dropdownHeight = 240; // Approximate height of dropdown
+      const dropdownHeight = 240;
       const dropdownWidth = rect.width;
 
       let top = rect.bottom + window.scrollY + 8;
       let left = rect.left + window.scrollX;
 
-      // If there's not enough space below, position above
       if (top + dropdownHeight > window.scrollY + windowHeight) {
         top = rect.top + window.scrollY - dropdownHeight - 8;
       }
 
-      // Ensure it doesn't go off the right edge
       if (left + dropdownWidth > windowWidth) {
         left = windowWidth - dropdownWidth - 16;
       }
 
-      // Ensure it doesn't go off the left edge
       if (left < 16) {
         left = 16;
       }
@@ -59,30 +58,35 @@ function CustomSelect({
         !selectRef.current.contains(event.target)
       ) {
         setIsOpen(false);
+        onBlur?.();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [onBlur]);
 
   const selectedOption = options.find((option) => option.value === value);
 
   const handleSelect = (optionValue) => {
     onChange({ target: { value: optionValue } });
     setIsOpen(false);
+    onBlur?.();
   };
 
   return (
     <label className={`block relative ${className}`} htmlFor={id}>
       <span className="mb-2 block text-sm font-medium text-coffee-text">
         {label}
+        {required ? <span className="ml-1 text-red-500">*</span> : null}
       </span>
       <div className="relative">
         <button
           ref={selectRef}
+          id={id}
           type="button"
           onClick={() => setIsOpen(!isOpen)}
+          onBlur={onBlur}
           className={`field-ring w-full rounded-2xl border bg-coffee-card/40 backdrop-blur-sm px-4 py-3.5 text-sm text-left outline-none transition focus:border-coffee-accent focus:ring-2 focus:ring-coffee-accent/25 ${
             error ? "border-red-400/70" : "border-coffee-border/50"
           }`}
@@ -94,11 +98,11 @@ function CustomSelect({
           >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
             <motion.svg
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
-              className="w-5 h-5 text-coffee-muted"
+              className="h-5 w-5 text-coffee-muted"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -114,14 +118,14 @@ function CustomSelect({
         </button>
 
         <AnimatePresence>
-          {isOpen && (
+          {isOpen ? (
             <motion.div
               ref={dropdownRef}
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed z-[9999] backdrop-blur-xl bg-coffee-card/95 border border-coffee-border/50 rounded-2xl shadow-glow max-h-60 overflow-y-auto"
+              className="fixed z-[9999] max-h-60 overflow-y-auto rounded-2xl border border-coffee-border/50 bg-coffee-card/95 shadow-glow backdrop-blur-xl"
               style={{
                 top: dropdownPosition.top,
                 left: dropdownPosition.left,
@@ -138,7 +142,7 @@ function CustomSelect({
                   transition={{ delay: index * 0.05 }}
                   className={`w-full px-4 py-3 text-left text-sm transition-all hover:bg-coffee-accent/10 first:rounded-t-2xl last:rounded-b-2xl ${
                     value === option.value
-                      ? "bg-coffee-accent/20 text-coffee-accent font-medium"
+                      ? "bg-coffee-accent/20 font-medium text-coffee-accent"
                       : "text-coffee-text hover:text-coffee-accent"
                   }`}
                 >
@@ -146,7 +150,7 @@ function CustomSelect({
                 </motion.button>
               ))}
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
 

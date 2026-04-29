@@ -11,7 +11,7 @@ const scheduleSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      enum: ["Morning", "Afternoon", "Weekend"]
+      enum: ["Morning", "Afternoon", "Weekend", "Evening"]
     },
     start_date: {
       type: Date,

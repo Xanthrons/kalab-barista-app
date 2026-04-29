@@ -1,11 +1,29 @@
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ethiopianPhoneRegex = /^(?:\+251|251|0)?9\d{8}$/;
+const strictEmailRegex =
+  /^(?=.{6,254}$)([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+const nameRegex = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+const ethiopianPhoneRegex = /^\+251[97]\d{8}$/;
 
 const allowedSchedules = ["Morning", "Afternoon", "Weekend"];
 const allowedSources = ["Instagram", "Telegram", "Referral"];
 
 const cleanString = (value) => String(value ?? "").trim();
-const cleanPhone = (value) => cleanString(value).replace(/[\s-]/g, "");
+const cleanPhone = (value) => String(value ?? "").replace(/\D/g, "");
+
+function normalizePhone(value) {
+  let digits = cleanPhone(value);
+
+  if (digits.startsWith("251")) {
+    digits = digits.slice(3);
+  }
+
+  if (digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+
+  digits = digits.slice(0, 9);
+
+  return digits ? `+251${digits}` : "";
+}
 
 function validateRegistrationPayload(payload = {}) {
   const errors = {};
@@ -19,7 +37,7 @@ function validateRegistrationPayload(payload = {}) {
       first_name: cleanString(payload.personal_info?.first_name),
       last_name: cleanString(payload.personal_info?.last_name),
       email: cleanString(payload.personal_info?.email).toLowerCase(),
-      phone: cleanPhone(payload.personal_info?.phone),
+      phone: normalizePhone(payload.personal_info?.phone),
       dob: cleanString(payload.personal_info?.dob),
       address: cleanString(payload.personal_info?.address)
     },
@@ -30,7 +48,7 @@ function validateRegistrationPayload(payload = {}) {
     },
     emergency: {
       contact_name: cleanString(payload.emergency?.contact_name),
-      contact_phone: cleanPhone(payload.emergency?.contact_phone)
+      contact_phone: normalizePhone(payload.emergency?.contact_phone)
     },
     meta: {
       motivation: cleanString(payload.meta?.motivation),
@@ -44,19 +62,28 @@ function validateRegistrationPayload(payload = {}) {
 
   if (!value.personal_info.first_name) {
     errors.first_name = "First name is required.";
+  } else if (!nameRegex.test(value.personal_info.first_name)) {
+    errors.first_name = "First name can contain letters only.";
   }
+
   if (!value.personal_info.last_name) {
     errors.last_name = "Last name is required.";
+  } else if (!nameRegex.test(value.personal_info.last_name)) {
+    errors.last_name = "Last name can contain letters only.";
   }
-  if (!emailRegex.test(value.personal_info.email)) {
+
+  if (!strictEmailRegex.test(value.personal_info.email)) {
     errors.email = "Valid email is required.";
   }
+
   if (!ethiopianPhoneRegex.test(value.personal_info.phone)) {
-    errors.phone = "Valid Ethiopian phone number is required.";
+    errors.phone = "Phone number must be in the format +2519XXXXXXXX or +2517XXXXXXXX.";
   }
+
   if (!value.personal_info.dob) {
     errors.dob = "Date of birth is required.";
   }
+
   if (!value.personal_info.address) {
     errors.address = "Address is required.";
   }
@@ -64,9 +91,11 @@ function validateRegistrationPayload(payload = {}) {
   if (typeof value.course_details.has_experience !== "boolean") {
     errors.has_experience = "Experience flag must be true or false.";
   }
+
   if (!["Regular", "VIP"].includes(value.course_details.program_type)) {
     errors.program_type = "Program type must be Regular or VIP.";
   }
+
   if (
     value.course_details.program_type === "VIP" &&
     !allowedSchedules.includes(value.course_details.vip_preference)
@@ -76,10 +105,15 @@ function validateRegistrationPayload(payload = {}) {
 
   if (!value.emergency.contact_name) {
     errors.contact_name = "Emergency contact name is required.";
+  } else if (!nameRegex.test(value.emergency.contact_name)) {
+    errors.contact_name = "Emergency contact name can contain letters only.";
   }
+
   if (!ethiopianPhoneRegex.test(value.emergency.contact_phone)) {
-    errors.contact_phone = "Valid emergency contact phone is required.";
+    errors.contact_phone =
+      "Emergency phone must be in the format +2519XXXXXXXX or +2517XXXXXXXX.";
   }
+
   if (!allowedSources.includes(value.meta.source)) {
     errors.source = "Source must be Instagram, Telegram, or Referral.";
   }
@@ -96,5 +130,6 @@ function validateRegistrationPayload(payload = {}) {
 }
 
 module.exports = {
+  normalizePhone,
   validateRegistrationPayload
 };

@@ -1,18 +1,49 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import "intl-tel-input/styles";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --coffee-bg: #120b06;
-  --coffee-bg-deep: #0b0704;
-  --coffee-panel: rgba(34, 21, 15, 0.66);
-  --coffee-border: rgba(255, 244, 226, 0.12);
+  --coffee-bg-rgb: 19 12 8;
+  --coffee-bg-deep-rgb: 11 7 5;
+  --coffee-card-rgb: 43 28 19;
+  --coffee-accent-rgb: 212 163 115;
+  --coffee-text-rgb: 254 250 224;
+  --coffee-muted-rgb: 231 216 196;
+  --coffee-border-rgb: 93 64 55;
+  --coffee-border-light-rgb: 93 64 55;
+  --coffee-panel: linear-gradient(180deg, rgba(47, 31, 22, 0.72) 0%, rgba(20, 13, 10, 0.82) 100%);
   --coffee-shadow: 0 30px 80px rgba(6, 4, 3, 0.42);
-  color: #fefae0;
-  background: #120b06;
-  font-family: "Manrope", sans-serif;
+  --coffee-shell: radial-gradient(circle at 15% 15%, rgba(212, 163, 115, 0.14), transparent 24%),
+    radial-gradient(circle at 85% 14%, rgba(94, 56, 32, 0.24), transparent 18%),
+    linear-gradient(180deg, #22150f 0%, #130c08 42%, #090504 100%);
+  --coffee-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.015), transparent 14%),
+    radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.045), transparent 30%),
+    radial-gradient(circle at 70% 70%, rgba(255, 245, 230, 0.018), transparent 30%);
+  color: rgb(var(--coffee-text-rgb));
+  background: rgb(var(--coffee-bg-rgb));
+  font-family: "Inter", sans-serif;
+}
+
+:root[data-theme="light"] {
+  --coffee-bg-rgb: 254 250 224;
+  --coffee-bg-deep-rgb: 246 238 214;
+  --coffee-card-rgb: 255 252 241;
+  --coffee-accent-rgb: 212 163 115;
+  --coffee-text-rgb: 46 31 21;
+  --coffee-muted-rgb: 102 78 61;
+  --coffee-border-rgb: 180 148 122;
+  --coffee-border-light-rgb: 212 163 115;
+  --coffee-panel: linear-gradient(180deg, rgba(255, 252, 241, 0.92) 0%, rgba(248, 241, 220, 0.86) 100%);
+  --coffee-shadow: 0 24px 60px rgba(88, 61, 37, 0.12);
+  --coffee-shell: radial-gradient(circle at 15% 15%, rgba(212, 163, 115, 0.18), transparent 26%),
+    radial-gradient(circle at 82% 12%, rgba(187, 148, 111, 0.16), transparent 20%),
+    linear-gradient(180deg, #fffdf4 0%, #fefae0 45%, #f8f1dc 100%);
+  --coffee-overlay: linear-gradient(135deg, rgba(88, 61, 37, 0.02), transparent 16%),
+    radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.08), transparent 30%),
+    radial-gradient(circle at 70% 70%, rgba(88, 61, 37, 0.03), transparent 30%);
 }
 
 html,
@@ -23,25 +54,19 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 15% 15%, rgba(212, 163, 115, 0.18), transparent 24%),
-    radial-gradient(circle at 85% 14%, rgba(94, 56, 32, 0.28), transparent 18%),
-    radial-gradient(circle at 20% 85%, rgba(212, 163, 115, 0.08), transparent 28%),
-    linear-gradient(180deg, #26160f 0%, #130b07 40%, #090503 100%);
-  color: #fefae0;
+  background: var(--coffee-shell);
+  color: rgb(var(--coffee-text-rgb));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 14%),
-    radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.05), transparent 30%),
-    radial-gradient(circle at 70% 70%, rgba(255, 245, 230, 0.02), transparent 30%);
+  background-image: var(--coffee-overlay);
   pointer-events: none;
   z-index: -1;
 }
@@ -50,11 +75,24 @@ body::before {
   box-sizing: border-box;
 }
 
+button,
 input,
 select,
-textarea,
-button {
+textarea {
   font: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  color-scheme: light;
 }
 
 ::-webkit-scrollbar {
@@ -71,9 +109,9 @@ button {
 }
 
 .glass-panel {
-  background: linear-gradient(180deg, rgba(56, 37, 26, 0.72) 0%, rgba(22, 14, 10, 0.78) 100%);
-  border: 1px solid var(--coffee-border);
-  backdrop-filter: blur(20px);
+  background: var(--coffee-panel);
+  border: 1px solid rgb(var(--coffee-border-rgb));
+  backdrop-filter: blur(18px);
   box-shadow: var(--coffee-shadow);
 }
 
@@ -84,7 +122,6 @@ button {
 .coffee-noise {
   background-image:
     linear-gradient(120deg, rgba(255, 255, 255, 0.02), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 40%),
     repeating-linear-gradient(
       135deg,
       rgba(255, 255, 255, 0.014) 0,
@@ -92,13 +129,13 @@ button {
       transparent 1px,
       transparent 12px
     );
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
 .glass-card {
   background: var(--coffee-panel);
-  border: 1px solid var(--coffee-border);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgb(var(--coffee-border-rgb));
+  backdrop-filter: blur(16px);
   box-shadow: var(--coffee-shadow);
 }
 
@@ -116,6 +153,10 @@ button {
   filter: blur(0.2px);
 }
 
+:root[data-theme="light"] .bean {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.58), rgba(212, 163, 115, 0.2) 34%, rgba(149, 105, 71, 0.24) 88%);
+}
+
 .bean::after {
   content: "";
   position: absolute;
@@ -131,8 +172,100 @@ button {
 
 .hero-orbit {
   background:
-    radial-gradient(circle at center, rgba(212, 163, 115, 0.22), transparent 42%),
-    linear-gradient(140deg, rgba(255, 247, 231, 0.06), rgba(255, 247, 231, 0));
+    radial-gradient(circle at center, rgba(212, 163, 115, 0.16), transparent 42%),
+    linear-gradient(140deg, rgba(255, 247, 231, 0.04), rgba(255, 247, 231, 0));
   border: 1px solid rgba(255, 247, 231, 0.08);
-  backdrop-filter: blur(22px);
+  backdrop-filter: blur(16px);
+}
+
+:root[data-theme="light"] .hero-orbit {
+  background:
+    radial-gradient(circle at center, rgba(212, 163, 115, 0.18), transparent 42%),
+    linear-gradient(140deg, rgba(255, 255, 255, 0.84), rgba(255, 247, 231, 0.24));
+  border: 1px solid rgba(142, 109, 84, 0.12);
+}
+
+.iti {
+  width: 100%;
+  display: block;
+  --iti-border-color: rgba(var(--coffee-border-rgb), 0.9);
+  --iti-dropdown-bg: rgb(var(--coffee-card-rgb));
+  --iti-hover-color: rgba(var(--coffee-accent-rgb), 0.12);
+  --iti-icon-color: rgb(var(--coffee-muted-rgb));
+  --iti-spacer-horizontal: 14px;
+  --iti-mobile-popup-margin: 18px;
+}
+
+.iti__tel-input,
+.iti input.iti__tel-input,
+.iti input.iti__tel-input[type="tel"],
+.iti input.iti__tel-input[type="text"] {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgb(var(--coffee-border-rgb));
+  background: rgba(255, 255, 255, 0.04);
+  color: rgb(var(--coffee-text-rgb));
+  min-height: 54px;
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.iti__tel-input:focus {
+  border-color: rgb(var(--coffee-accent-rgb));
+  box-shadow: 0 0 0 2px rgba(var(--coffee-accent-rgb), 0.25);
+  outline: none;
+}
+
+.iti__selected-country {
+  border-radius: 0.875rem 0 0 0.875rem;
+}
+
+.iti__selected-country-primary {
+  min-height: 100%;
+}
+
+.iti__selected-country-primary:hover,
+.iti__selected-country:focus-visible {
+  background-color: rgba(var(--coffee-accent-rgb), 0.08);
+}
+
+.iti__dropdown-content {
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(var(--coffee-border-rgb), 0.9);
+  box-shadow: 0 20px 50px rgba(6, 4, 3, 0.34);
+}
+
+.iti__search-input-wrapper {
+  border-bottom: 1px solid rgba(var(--coffee-border-rgb), 0.8);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.iti__search-input {
+  background: transparent;
+  color: rgb(var(--coffee-text-rgb));
+  outline: none;
+}
+
+.iti__search-input::placeholder {
+  color: rgba(var(--coffee-muted-rgb), 0.7);
+}
+
+.iti__country-list {
+  max-height: 260px;
+}
+
+.iti__country {
+  color: rgb(var(--coffee-text-rgb));
+}
+
+.iti__country.iti__highlight,
+.iti__country:hover {
+  background-color: rgba(var(--coffee-accent-rgb), 0.12);
+}
+
+.iti__search-clear:hover,
+.iti__search-clear:focus-visible {
+  background: rgba(var(--coffee-accent-rgb), 0.12);
 }

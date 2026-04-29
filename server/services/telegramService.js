@@ -1,7 +1,11 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Registration = require("../models/Registration");
+const SystemSetting = require("../models/SystemSetting");
 const { saveTelegramPhoto } = require("./fileStorageService");
-const { formatDate, formatScheduleMessage } = require("../utils/scheduleFormatter");
+const {
+  formatDate,
+  formatScheduleMessage
+} = require("../utils/scheduleFormatter");
 
 class TelegramService {
   constructor() {
@@ -23,8 +27,20 @@ class TelegramService {
 
   async findApplicantByTelegramId(telegramId) {
     return Registration.findOne({
-      $or: [{ telegram_id: Number(telegramId) }, { "telegram_user.id": Number(telegramId) }]
+      $or: [
+        { telegram_id: Number(telegramId) },
+        { "telegram_user.id": Number(telegramId) }
+      ]
     });
+  }
+
+  async getSystemSettings() {
+    const settings = await SystemSetting.findOne({ key: "general" });
+    return settings?.value || {};
+  }
+
+  shouldBlockAutomation(applicant) {
+    return applicant?.interest_status === "not_interested";
   }
 
   async syncTelegramProfile(message, applicant = null) {
@@ -187,27 +203,32 @@ class TelegramService {
     );
   }
 
-  async sendPaymentRequest(applicant, bankDetails) {
-    if (applicant.interest_status !== "interested") {
+  async sendPaymentRequest(applicant) {
+    if (this.shouldBlockAutomation(applicant)) {
       return false;
     }
 
+    const settings = await this.getSystemSettings();
     const message = [
       "Payment request",
       "",
       `Price: ${applicant.price} ETB`,
-      `Bank: ${bankDetails.bankName}`,
-      `Account Name: ${bankDetails.accountName}`,
-      `Account Number: ${bankDetails.accountNumber}`,
+      `Bank: ${settings.bank_name || "Commercial Bank of Ethiopia"}`,
+      `Account Name: ${settings.bank_account_name || "Kalab Barista Academy"}`,
+      `Account Number: ${settings.bank_account_number || "0000000000"}`,
       "",
-      bankDetails.instructions,
-      "After payment, send your screenshot directly in this chat."
+      settings.payment_instructions ||
+        "After payment, reply to the Telegram bot with your payment screenshot."
     ].join("\n");
 
     return this.sendMessage(applicant, message);
   }
 
   async sendPaymentConfirmation(applicant) {
+    if (this.shouldBlockAutomation(applicant)) {
+      return false;
+    }
+
     return this.sendMessage(
       applicant,
       "Your payment has been approved. Thank you. We will now share your class details as soon as your schedule is assigned."
@@ -215,10 +236,18 @@ class TelegramService {
   }
 
   async sendClassDetails(applicant, schedule) {
+    if (this.shouldBlockAutomation(applicant)) {
+      return false;
+    }
+
     return this.sendMessage(applicant, formatScheduleMessage(schedule));
   }
 
   async sendReminder(applicant, schedule, daysBefore) {
+    if (this.shouldBlockAutomation(applicant)) {
+      return false;
+    }
+
     const label = daysBefore === 1 ? "tomorrow" : `in ${daysBefore} days`;
     const message = [
       `Reminder: your ${schedule.name} class starts ${label}.`,

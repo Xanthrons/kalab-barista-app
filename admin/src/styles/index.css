@@ -4,22 +4,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS variables: dark theme (default) ── */
+:root {
+  --admin-bg:      #0f1115;
+  --admin-panel:   #161a21;
+  --admin-soft:    #1d232d;
+  --admin-accent:  #d4a373;
+  --admin-text:    #f4f1ea;
+  --admin-muted:   #a7abb4;
+  --admin-border:  #2a313d;
+  --admin-success: #4ade80;
+  --admin-warning: #fbbf24;
+  --admin-danger:  #fb7185;
+}
+
+/* ── Light theme ── */
+.light {
+  --admin-bg:      #f5f3ef;
+  --admin-panel:   #ffffff;
+  --admin-soft:    #f0ece4;
+  --admin-accent:  #b5813d;
+  --admin-text:    #1a1611;
+  --admin-muted:   #6b6560;
+  --admin-border:  #ddd8cf;
+  --admin-success: #16a34a;
+  --admin-warning: #d97706;
+  --admin-danger:  #e11d48;
+}
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: "Manrope", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(212, 163, 115, 0.08), transparent 20%),
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Dark body gradient */
+:root body {
+  background-image:
+    radial-gradient(circle at top left, rgba(212,163,115,0.08), transparent 20%),
     linear-gradient(180deg, #11141a 0%, #0f1115 100%);
-  color: #f4f1ea;
+}
+.light body {
+  background-image: none;
 }
 
-* {
-  box-sizing: border-box;
-}
+button, input, select, textarea { font: inherit; }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--admin-border); border-radius: 99px; }

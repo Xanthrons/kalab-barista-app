@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAppPreferences } from "../hooks/useTelegramWebApp";
 
 function SuccessState({ showHomeButton = true }) {
   const navigate = useNavigate();
+  const { t } = useAppPreferences();
 
   return (
     <motion.div
@@ -29,12 +31,10 @@ function SuccessState({ showHomeButton = true }) {
         </svg>
       </motion.div>
       <h2 className="mt-5 text-2xl font-bold text-coffee-text">
-        Registration received
+        {t("registrationReceived")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-coffee-muted">
-        Your application has been submitted successfully. We have also sent a
-        confirmation message through Telegram and will contact you soon with the
-        next steps.
+        {t("registrationSuccess")}
       </p>
 
       {showHomeButton && (
@@ -45,7 +45,7 @@ function SuccessState({ showHomeButton = true }) {
           onClick={() => navigate("/")}
           className="mt-6 px-6 py-3 bg-coffee-accent text-coffee-bg rounded-xl font-medium hover:bg-coffee-accent/90 transition-colors duration-200"
         >
-          Go to Home
+          {t("goToHome")}
         </motion.button>
       )}
     </motion.div>

@@ -1,10 +1,13 @@
-function StepIndicator({ currentStep, totalSteps, titles }) {
+import { useAppPreferences } from "../hooks/useTelegramWebApp";
+
+function StepIndicator({ currentStep, totalSteps, titles, onStepSelect }) {
+  const { t } = useAppPreferences();
   const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   return (
     <div className="mb-6">
       <div className="mb-3 flex items-center justify-between text-xs uppercase tracking-[0.28em] text-coffee-muted/80">
-        <span>Application Progress</span>
+        <span>{t("applicationProgress")}</span>
         <span>
           {currentStep} / {totalSteps}
         </span>
@@ -22,21 +25,28 @@ function StepIndicator({ currentStep, totalSteps, titles }) {
           const stepNumber = index + 1;
           const isActive = currentStep === stepNumber;
           const isComplete = currentStep > stepNumber;
+          const isClickable = typeof onStepSelect === "function" && stepNumber <= currentStep;
 
           return (
-            <div
+            <button
               key={title}
+              type="button"
+              onClick={() => {
+                if (isClickable) {
+                  onStepSelect(stepNumber);
+                }
+              }}
               className={`rounded-[24px] border px-3 py-3 text-center transition ${
                 isActive
                   ? "border-coffee-accent bg-coffee-accent/14 text-coffee-text shadow-soft"
                   : isComplete
                     ? "border-coffee-accent/50 bg-coffee-accent/8 text-coffee-text/90"
                     : "border-coffee-border bg-white/[0.03] text-coffee-muted"
-              }`}
+              } ${isClickable ? "cursor-pointer hover:border-coffee-accent/60" : "cursor-default"}`}
             >
               <div className="text-sm font-semibold">{stepNumber}</div>
               <div className="mt-1 text-[10px] tracking-[0.22em]">{title}</div>
-            </div>
+            </button>
           );
         })}
       </div>

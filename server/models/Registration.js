@@ -130,9 +130,19 @@ const registrationSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+      virtuals: true
+    },
+    toObject: {
+      virtuals: true
+    }
   }
 );
+
+registrationSchema.virtual("class_schedule_id").get(function getClassScheduleId() {
+  return this.assigned_schedule?._id || this.assigned_schedule || null;
+});
 
 registrationSchema.pre("validate", function syncLegacyTelegramFields(next) {
   if (!this.telegram_id && this.telegram_user?.id) {

@@ -5,14 +5,14 @@ export default {
     extend: {
       colors: {
         coffee: {
-          bg: "#1a110a",
-          "bg-deep": "#130c07",
-          card: "#2b1c13",
-          accent: "#d4a373",
-          text: "#fefae0",
-          muted: "#e7d8c4",
-          border: "#4c3325",
-          "border-light": "#5d4037"
+          bg: "rgb(var(--coffee-bg-rgb) / <alpha-value>)",
+          "bg-deep": "rgb(var(--coffee-bg-deep-rgb) / <alpha-value>)",
+          card: "rgb(var(--coffee-card-rgb) / <alpha-value>)",
+          accent: "rgb(var(--coffee-accent-rgb) / <alpha-value>)",
+          text: "rgb(var(--coffee-text-rgb) / <alpha-value>)",
+          muted: "rgb(var(--coffee-muted-rgb) / <alpha-value>)",
+          border: "rgb(var(--coffee-border-rgb) / <alpha-value>)",
+          "border-light": "rgb(var(--coffee-border-light-rgb) / <alpha-value>)"
         }
       },
       boxShadow: {
@@ -21,8 +21,7 @@ export default {
         "inner-light": "inset 0 1px 0 rgba(255, 250, 230, 0.1)"
       },
       fontFamily: {
-        sans: ["Manrope", "sans-serif"],
-        display: ["Cormorant Garamond", "serif"]
+        sans: ["Inter", "sans-serif"]
       },
       backgroundImage: {
         beans:

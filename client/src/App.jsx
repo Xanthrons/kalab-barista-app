@@ -1,4 +1,5 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import RouteReset from "./components/RouteReset";
 import CourseOverviewPage from "./pages/CourseOverviewPage";
 import HomePage from "./pages/HomePage";
 import ProfileManagementPage from "./pages/ProfileManagementPage";
@@ -8,6 +9,7 @@ import StudentPortalPage from "./pages/StudentPortalPage";
 function App() {
   return (
     <HashRouter>
+      <RouteReset />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CourseOverviewPage />} />

@@ -21,8 +21,8 @@ function validateSchedulePayload(schedule) {
     errors.name = "Schedule name is required.";
   }
 
-  if (!["Morning", "Afternoon", "Weekend"].includes(schedule.type)) {
-    errors.type = "Type must be Morning, Afternoon, or Weekend.";
+  if (!["Morning", "Afternoon", "Weekend", "Evening"].includes(schedule.type)) {
+    errors.type = "Type must be Morning, Afternoon, Weekend or Evening.";
   }
 
   if (!schedule.start_date || Number.isNaN(new Date(schedule.start_date).getTime())) {
