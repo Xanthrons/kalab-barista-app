@@ -1,7 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Registration = require("../models/Registration");
 const SystemSetting = require("../models/SystemSetting");
-// REMOVED: saveTelegramPhoto import as it is no longer needed
+const { saveTelegramPhoto } = require("./fileStorageService");
 const {
   formatDate,
   formatScheduleMessage
@@ -108,7 +108,6 @@ class TelegramService {
       }
     });
 
-    // UPDATED: Optimized photo handling logic
     this.bot.on("photo", async (message) => {
       try {
         const applicant = await this.syncTelegramProfile(message);
@@ -116,34 +115,37 @@ class TelegramService {
         if (!applicant) {
           await this.bot.sendMessage(
             message.chat.id,
-            "Please complete your registration first so we can link your screenshot."
+            "Please complete your registration first so we can link your screenshot to the right application."
           );
           return;
         }
 
-        // Get the highest resolution version of the photo
         const highestResolutionPhoto = message.photo?.[message.photo.length - 1];
 
         if (!highestResolutionPhoto?.file_id) {
           return;
         }
 
-        /**
-         * UPDATED LOGIC:
-         * We no longer call saveTelegramPhoto().
-         * We store the file_id directly. This is permanent as long as the 
-         * bot is active and the user doesn't delete the message.
-         */
-        applicant.payment_screenshot_url = highestResolutionPhoto.file_id; 
+        const screenshotUrl = await saveTelegramPhoto(
+          this.bot,
+          highestResolutionPhoto.file_id,
+          `payment-${applicant._id}`
+        );
+
+        applicant.payment_screenshot_url = screenshotUrl;
         applicant.payment_status = "pending";
         await applicant.save();
 
         await this.bot.sendMessage(
           message.chat.id,
-          "Payment screenshot received. Our team will review it shortly."
+          "Payment screenshot received. Our team will review it and confirm your payment shortly."
         );
       } catch (error) {
         console.error("Error handling payment screenshot:", error);
+        await this.bot.sendMessage(
+          message.chat.id,
+          "Sorry, there was a problem saving your screenshot. Please try again in a moment."
+        );
       }
     });
 
@@ -208,27 +210,18 @@ class TelegramService {
 
     const settings = await this.getSystemSettings();
     const message = [
-      "☕️ *Payment Request*",
+      "Payment request",
       "",
-      `*Price:* ${applicant.price} ETB`,
-      `*Bank:* ${settings.bank_name || "Commercial Bank of Ethiopia"}`,
-      `*Account Name:* ${settings.bank_account_name || "Kalab Barista Academy"}`,
-      `*Account Number:* ${settings.bank_account_number || "0000000000"}`,
+      `Price: ${applicant.price} ETB`,
+      `Bank: ${settings.bank_name || "Commercial Bank of Ethiopia"}`,
+      `Account Name: ${settings.bank_account_name || "Kalab Barista Academy"}`,
+      `Account Number: ${settings.bank_account_number || "0000000000"}`,
       "",
       settings.payment_instructions ||
-        "After payment, reply to this message with your payment screenshot."
+        "After payment, reply to the Telegram bot with your payment screenshot."
     ].join("\n");
 
-    // Using parse_mode: 'Markdown' for a more professional look
-    try {
-      const chatId = this.resolveChatId(applicant);
-      if (chatId) {
-        await this.bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
-        return true;
-      }
-    } catch (e) {
-      return this.sendMessage(applicant, message); // Fallback to plain text
-    }
+    return this.sendMessage(applicant, message);
   }
 
   async sendPaymentConfirmation(applicant) {
@@ -238,7 +231,7 @@ class TelegramService {
 
     return this.sendMessage(
       applicant,
-      "✅ Your payment has been approved. Thank you! We will share your class details as soon as your schedule is assigned."
+      "Your payment has been approved. Thank you. We will now share your class details as soon as your schedule is assigned."
     );
   }
 
@@ -257,26 +250,18 @@ class TelegramService {
 
     const label = daysBefore === 1 ? "tomorrow" : `in ${daysBefore} days`;
     const message = [
-      `🔔 *Reminder:* your ${schedule.name} class starts ${label}.`,
+      `Reminder: your ${schedule.name} class starts ${label}.`,
       "",
-      `*Start Date:* ${formatDate(schedule.start_date)}`,
-      `*Days:* ${schedule.days.join(", ")}`,
-      `*Time:* ${schedule.time}`,
-      `*Instructor:* ${schedule.instructor}`,
+      `Start Date: ${formatDate(schedule.start_date)}`,
+      `Days: ${schedule.days.join(", ")}`,
+      `Time: ${schedule.time}`,
+      `Instructor: ${schedule.instructor}`,
       "",
-      `*Outstanding payment:* ${applicant.price} ETB`,
-      "Please ensure your payment is completed to secure your seat."
+      `Outstanding payment: ${applicant.price} ETB`,
+      "Please complete your payment and send the screenshot here to secure your seat."
     ].join("\n");
 
-    try {
-      const chatId = this.resolveChatId(applicant);
-      if (chatId) {
-        await this.bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
-        return true;
-      }
-    } catch (e) {
-      return this.sendMessage(applicant, message);
-    }
+    return this.sendMessage(applicant, message);
   }
 }
 

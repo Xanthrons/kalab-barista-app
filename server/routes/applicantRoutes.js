@@ -1,19 +1,9 @@
 const express = require("express");
 const {
-  getApplicants, 
-  getApplicantStats, 
-  getApplicantById, 
-  getApplicantByTelegramId,
-  getApplicantActivity, 
-  updateApplicant, 
-  setInterest, 
-  assignSchedule,
-  sendPaymentRequest, 
-  approvePayment, 
-  rejectPayment,        
-  declineApprovedPayment, 
-  requestFullPayment, 
-  getReceipt            
+  getApplicants, getApplicantStats, getApplicantById, getApplicantByTelegramId,
+  getApplicantActivity, updateApplicant, setInterest, assignSchedule,
+  sendPaymentRequest, approvePayment, rejectPayment, declineApprovedPayment,
+  requestFullPayment, getReceipt
 } = require("../controllers/applicantController");
 const { requireAuth, requireRole } = require("../middleware/authMiddleware");
 
